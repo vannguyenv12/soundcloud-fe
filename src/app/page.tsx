@@ -4,6 +4,8 @@ export default function HomePage() {
   return (
     <div>
       <MainSlider />
+      <MainSlider />
+      <MainSlider />
     </div>
   );
 }

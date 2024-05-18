@@ -70,7 +70,7 @@ const MainSlider = () => {
         },
       }}
     >
-      <h2>Multiple Tracks</h2>
+      <h2>Chill</h2>
       <Slider {...settings}>
         <div className="abc">
           <h3>1</h3>
