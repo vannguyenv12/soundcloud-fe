@@ -1,11 +1,16 @@
 import MainSlider from "@/components/main/main.slider";
+import { sendRequest } from "@/utils/api";
+import { Container } from "@mui/material";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const ballads = await sendRequest<IBackendRes<ITrackTop[]>>({
+    url: "http://localhost:5000/api/v1/tracks?category=Ballad",
+    method: "GET",
+  });
+
   return (
-    <div>
-      <MainSlider />
-      <MainSlider />
-      <MainSlider />
-    </div>
+    <Container>
+      <MainSlider data={ballads?.data ?? []} />
+    </Container>
   );
 }

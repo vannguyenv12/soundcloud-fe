@@ -6,8 +6,15 @@ import Slider from "react-slick";
 import { Settings } from "react-slick";
 import { Box, Button } from "@mui/material";
 import { ChevronLeftOutlined, ChevronRightOutlined } from "@mui/icons-material";
+import Link from "next/link";
 
-const MainSlider = () => {
+interface IProps {
+  data: ITrackTop[];
+}
+
+const MainSlider = (props: IProps) => {
+  const { data } = props;
+
   const NextArrow = (props: any) => {
     return (
       <Button
@@ -16,7 +23,7 @@ const MainSlider = () => {
         sx={{
           position: "absolute",
           right: 0,
-          top: "50%",
+          top: "25%",
           zIndex: 2,
           minWidth: 30,
           width: 35,
@@ -35,7 +42,7 @@ const MainSlider = () => {
         sx={{
           position: "absolute",
           left: 0,
-          top: "50%",
+          top: "25%",
           zIndex: 2,
           minWidth: 30,
           width: 35,
@@ -60,36 +67,27 @@ const MainSlider = () => {
     <Box
       sx={{
         margin: "0 50px",
-        ".abc": {
+        ".track": {
           padding: "0 10px",
-        },
-        h3: {
-          border: "1px solid #ccc",
-          padding: "20px",
-          height: "200px",
+
+          img: {
+            width: 150,
+            height: 150,
+          },
         },
       }}
     >
       <h2>Chill</h2>
       <Slider {...settings}>
-        <div className="abc">
-          <h3>1</h3>
-        </div>
-        <div className="abc">
-          <h3>2</h3>
-        </div>
-        <div className="abc">
-          <h3>3</h3>
-        </div>
-        <div className="abc">
-          <h3>4</h3>
-        </div>
-        <div className="abc">
-          <h3>5</h3>
-        </div>
-        <div className="abc">
-          <h3>6</h3>
-        </div>
+        {data.map((track) => (
+          <div className="track" key={track.id}>
+            <img src={track.imgUrl} />
+            <Link href={`/track/${track.id}`}>
+              <h4>{track.title}</h4>
+            </Link>
+            <h5>{track.description}</h5>
+          </div>
+        ))}
       </Slider>
     </Box>
   );

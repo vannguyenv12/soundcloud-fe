@@ -173,17 +173,17 @@ export default function Header() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ backgroundColor: "#4c5c6c" }}>
+      <AppBar position="static" sx={{ backgroundColor: "#333" }}>
         <Container>
           <Toolbar>
             <Typography
               variant="h6"
               noWrap
               component="div"
-              sx={{ display: { xs: "none", sm: "block" } }}
+              sx={{ display: { xs: "none", sm: "block" }, cursor: "pointer" }}
               onClick={() => router.push("/")}
             >
-              SoundCloud
+              <div>SoundCloud</div>
             </Typography>
             <Search>
               <SearchIconWrapper>
