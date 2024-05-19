@@ -77,12 +77,12 @@ const MainSlider = (props: IProps) => {
         },
       }}
     >
-      <h2>Chill</h2>
+      <h2>Ballad</h2>
       <Slider {...settings}>
         {data.map((track) => (
           <div className="track" key={track.id}>
             <img src={track.imgUrl} />
-            <Link href={`/track/${track.id}`}>
+            <Link href={`/track/${track.id}?audio=${track.trackUrl}`}>
               <h4>{track.title}</h4>
             </Link>
             <h5>{track.description}</h5>
