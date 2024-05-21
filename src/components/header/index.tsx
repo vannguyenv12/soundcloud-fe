@@ -242,7 +242,7 @@ export default function Header() {
                     size="medium"
                     aria-label="show 17 new notifications"
                     color="inherit"
-                    onClick={() => signIn()}
+                    onClick={() => router.push("/auth/signin")}
                   >
                     Login
                   </IconButton>
