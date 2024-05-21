@@ -22,6 +22,8 @@ import { Container } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { useSession, signIn, signOut } from "next-auth/react";
+
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -64,6 +66,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function Header() {
+  const { data: session } = useSession();
+
+  console.log(">>> check session", session);
+
   const router = useRouter();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -115,7 +121,14 @@ export default function Header() {
       >
         Profile
       </MenuItem>
-      <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+      <MenuItem
+        onClick={() => {
+          handleMenuClose();
+          signOut();
+        }}
+      >
+        Logout
+      </MenuItem>
     </Menu>
   );
 
@@ -196,27 +209,45 @@ export default function Header() {
             </Search>
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              <IconButton
-                size="medium"
-                aria-label="show 4 new mails"
-                color="inherit"
-              >
-                <span onClick={() => router.push("/playlist")}>Playlists</span>
-              </IconButton>
-              <IconButton
-                size="medium"
-                aria-label="show 17 new notifications"
-                color="inherit"
-              >
-                <span onClick={() => router.push("/like")}>Likes</span>
-              </IconButton>
-              <IconButton
-                size="medium"
-                aria-label="show 17 new notifications"
-                color="inherit"
-              >
-                Upload
-              </IconButton>
+              {session ? (
+                <>
+                  <IconButton
+                    size="medium"
+                    aria-label="show 4 new mails"
+                    color="inherit"
+                    onClick={() => router.push("/playlist")}
+                  >
+                    <span>Playlists</span>
+                  </IconButton>
+                  <IconButton
+                    size="medium"
+                    aria-label="show 17 new notifications"
+                    color="inherit"
+                    onClick={() => router.push("/like")}
+                  >
+                    <span>Likes</span>
+                  </IconButton>
+                  <IconButton
+                    size="medium"
+                    aria-label="show 17 new notifications"
+                    color="inherit"
+                    onClick={() => router.push("/upload")}
+                  >
+                    Upload
+                  </IconButton>
+                </>
+              ) : (
+                <>
+                  <IconButton
+                    size="medium"
+                    aria-label="show 17 new notifications"
+                    color="inherit"
+                    onClick={() => signIn()}
+                  >
+                    Login
+                  </IconButton>
+                </>
+              )}
               <Avatar onClick={handleProfileMenuOpen}>V</Avatar>
             </Box>
             <Box sx={{ display: { xs: "flex", md: "none" } }}>
