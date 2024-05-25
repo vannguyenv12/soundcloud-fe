@@ -9,6 +9,10 @@ import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+
+import axios from "axios";
+import { sendRequest } from "@/utils/api";
 
 function LinearProgressWithLabel(
   props: LinearProgressProps & { value: number }
@@ -47,7 +51,33 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-function InputFileUpload() {
+function InputFileUpload(props: any) {
+  const { setInfo, info } = props;
+  const { data: session } = useSession();
+
+  const handleUpload = async (image: any) => {
+    const formData = new FormData();
+    formData.append("file", image);
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/v1/tracks/upload-image",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+        }
+      );
+
+      setInfo({
+        ...info,
+        imgUrl: res.data.data,
+      });
+    } catch (error) {
+      console.log("Failed to upload track", error);
+    }
+  };
   return (
     <Button
       component="label"
@@ -55,6 +85,12 @@ function InputFileUpload() {
       variant="contained"
       tabIndex={-1}
       startIcon={<CloudUploadIcon />}
+      onChange={(e) => {
+        const event = e.target as HTMLInputElement;
+        if (event.files) {
+          handleUpload(event.files[0]);
+        }
+      }}
     >
       Upload file
       <VisuallyHiddenInput type="file" />
@@ -62,13 +98,13 @@ function InputFileUpload() {
   );
 }
 
-const currencies = [
+const categories = [
   {
-    value: "ballad",
+    value: "Ballad",
     label: "Ballad",
   },
   {
-    value: "chill",
+    value: "Chill",
     label: "Chill",
   },
 ];
@@ -77,11 +113,58 @@ interface IProps {
   trackUpload: {
     fileName: string;
     percent: number;
+    uploadedTrackName: string;
   };
+  setValue?: (n: number) => void;
+}
+
+interface INewTrack {
+  title: string;
+  description: string;
+  trackUrl: string;
+  imgUrl: string;
+  category: string;
 }
 
 const Step2 = (props: IProps) => {
+  const { data: session } = useSession();
+  const [info, setInfo] = useState<INewTrack>({
+    title: "",
+    description: "",
+    trackUrl: "",
+    imgUrl: "",
+    category: "",
+  });
+
   const { trackUpload } = props;
+
+  useEffect(() => {
+    if (trackUpload && trackUpload.uploadedTrackName) {
+      setInfo({
+        ...info,
+        trackUrl: trackUpload.uploadedTrackName,
+      });
+    }
+  }, [trackUpload]);
+
+  const handleSubmit = async () => {
+    console.log("check info", info);
+    const res = await sendRequest<IBackendRes<ITrackTop[]>>({
+      url: "http://localhost:5000/api/v1/tracks",
+      method: "POST",
+      body: info,
+      headers: {
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+    });
+
+    if (res.data) {
+      alert("create success");
+      props.setValue?.(0);
+    } else {
+      alert("cannot add track");
+    }
+  };
   return (
     <Box>
       <Box>
@@ -94,34 +177,74 @@ const Step2 = (props: IProps) => {
         <Box>
           <div
             style={{ width: "300px", height: "300px", backgroundColor: "#ccc" }}
-          ></div>
+          >
+            {info.imgUrl && (
+              <img
+                height={"100%"}
+                width={"100%"}
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}uploads/${info.imgUrl}`}
+              />
+            )}
+          </div>
           <div style={{ textAlign: "center", marginTop: "10px" }}>
-            <InputFileUpload />
+            <InputFileUpload setInfo={setInfo} info={info} />
           </div>
         </Box>
 
         <Stack sx={{ width: "100%", padding: "0 100px" }} spacing={3}>
-          <TextField fullWidth label="Title" variant="standard" />
-          <TextField fullWidth label="Description" variant="standard" />
-          <TextField fullWidth label="Category" variant="standard" />
           <TextField
+            value={info.title}
+            onChange={(e) =>
+              setInfo({
+                ...info,
+                title: e.target.value,
+              })
+            }
+            fullWidth
+            label="Title"
+            variant="standard"
+          />
+          <TextField
+            value={info.description}
+            onChange={(e) =>
+              setInfo({
+                ...info,
+                description: e.target.value,
+              })
+            }
+            fullWidth
+            label="Description"
+            variant="standard"
+          />
+
+          <TextField
+            value={info.category}
+            onChange={(e) => {
+              console.log(e.target.value);
+              setInfo({
+                ...info,
+                category: e.target.value,
+              });
+            }}
             id="outlined-select-currency-native"
             select
-            label="Native select"
+            label="Category select"
             defaultValue="ballad"
             SelectProps={{
               native: true,
             }}
             helperText="Please select your category"
           >
-            {currencies.map((option) => (
+            {categories.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
           </TextField>
 
-          <Button variant="contained">Save</Button>
+          <Button variant="contained" onClick={handleSubmit}>
+            Save
+          </Button>
         </Stack>
       </Stack>
     </Box>

@@ -40,9 +40,11 @@ function InputFileUpload() {
 interface IProps {
   setValue: (n: number) => void;
   setTrackUpload: any;
+  trackUpload: any;
 }
 
 const Step1 = (props: IProps) => {
+  const { trackUpload } = props;
   const { data: session } = useSession();
 
   const onDrop = useCallback(
@@ -66,6 +68,7 @@ const Step1 = (props: IProps) => {
                   (progressEvent.loaded * 100) / progressEvent.total!
                 );
                 props.setTrackUpload({
+                  ...trackUpload,
                   fileName: files[0].name,
                   percent: percentCompleted,
                 });
@@ -73,7 +76,10 @@ const Step1 = (props: IProps) => {
             }
           );
 
-          console.log(">>> check res", res);
+          props.setTrackUpload((prevState: any) => ({
+            ...prevState,
+            uploadedTrackName: res.data.data,
+          }));
         } catch (error) {
           console.log("Failed to upload track", error);
         }

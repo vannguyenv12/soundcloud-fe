@@ -231,7 +231,7 @@ export default function Header() {
                     size="medium"
                     aria-label="show 17 new notifications"
                     color="inherit"
-                    onClick={() => router.push("/upload")}
+                    onClick={() => router.push("/track/upload")}
                   >
                     Upload
                   </IconButton>
