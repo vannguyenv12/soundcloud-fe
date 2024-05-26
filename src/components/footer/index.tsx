@@ -32,35 +32,38 @@ export default function Footer() {
   if (!hasMounted) return <></>;
 
   return (
-    <AppBar
-      position="fixed"
-      sx={{ top: "auto", bottom: 0, background: "#f2f2f2" }}
-    >
-      <Container
-        sx={{
-          display: "flex",
-          gap: 10,
-        }}
+    <div style={{ marginTop: "150px" }}>
+      <AppBar
+        position="fixed"
+        sx={{ top: "auto", bottom: 0, background: "#f2f2f2" }}
       >
-        <AudioPlayer
-          autoPlay
-          src="https://a128-z3.zmdcdn.me/7252053b66d9ca459205d8c2ac5a1b1e?authen=exp=1716227087~acl=/7252053b66d9ca459205d8c2ac5a1b1e/*~hmac=3c02b1bce75e89c291015a8471e32c8b"
-          onPlay={(e) => console.log("onPlay")}
-          style={{
-            boxShadow: "unset",
-          }}
-        />
-
-        <div
-          style={{
-            color: "black",
-            minWidth: 100,
+        <Container
+          sx={{
+            display: "flex",
+            gap: 10,
           }}
         >
-          <h4>Thành Đạt</h4>
-          <p style={{ whiteSpace: "nowrap" }}>Đắng lòng chữ thương</p>
-        </div>
-      </Container>
-    </AppBar>
+          <AudioPlayer
+            layout="horizontal-reverse"
+            autoPlay
+            src="https://a128-z3.zmdcdn.me/7252053b66d9ca459205d8c2ac5a1b1e?authen=exp=1716227087~acl=/7252053b66d9ca459205d8c2ac5a1b1e/*~hmac=3c02b1bce75e89c291015a8471e32c8b"
+            onPlay={(e) => console.log("onPlay")}
+            style={{
+              boxShadow: "unset",
+            }}
+          />
+
+          <div
+            style={{
+              color: "black",
+              minWidth: 100,
+            }}
+          >
+            <h4>Thành Đạt</h4>
+            <p style={{ whiteSpace: "nowrap" }}>Đắng lòng chữ thương</p>
+          </div>
+        </Container>
+      </AppBar>
+    </div>
   );
 }
