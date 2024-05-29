@@ -1,18 +1,29 @@
 "use client";
-import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import { useWavesurfer } from "@wavesurfer/react";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import "./wave.scss";
+import { generateId, sendRequest } from "@/utils/api";
+import { useTrackContext } from "@/lib/track.wrapper";
+import Chip from "@mui/material/Chip";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import { Stack } from "@mui/material";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 
 const WaveTrack = () => {
+  const [track, setTrack] = useState<any>();
+  const { currentTrack, setCurrentTrack } = useTrackContext() as ITrackContext;
   const containerRef = useRef<HTMLDivElement>(null);
   const hoverRef = useRef<HTMLDivElement>(null);
 
   const searchParams = useSearchParams();
   const search = searchParams.get("audio") || undefined;
+  const id = searchParams.get("id") || undefined;
+
+  const params = useParams();
 
   const options = useMemo(() => {
     let gradient, progressGradient;
@@ -71,7 +82,7 @@ const WaveTrack = () => {
       height: 100,
       waveColor: gradient,
       progressColor: progressGradient,
-      url: search,
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}uploads/${search}`,
       barWidth: 2,
       // plugins: useMemo(() => [Timeline.create()], []),
     };
@@ -98,84 +109,125 @@ const WaveTrack = () => {
     );
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      const track = await sendRequest<IBackendRes<ITrackTop[]>>({
+        url: `http://localhost:5000/api/v1/tracks/${generateId(
+          params.slug as string
+        )}`,
+        method: "GET",
+      });
+
+      setTrack(track?.data);
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (track) {
+      if (isPlaying) {
+        setCurrentTrack({ ...track, isPlaying: true });
+      } else {
+        setCurrentTrack({ ...track, isPlaying: false });
+      }
+    }
+  }, [isPlaying]);
+
   return (
-    <div
-      style={{
-        backgroundImage: "linear-gradient(to right, #493919, #42300b)",
-        padding: "20px",
-        height: "300px",
-        display: "flex",
-        justifyContent: "space-between",
-      }}
-    >
+    <div>
       <div
         style={{
-          width: "80%",
+          backgroundImage: "linear-gradient(to right, #493919, #42300b)",
+          padding: "20px",
+          height: "300px",
           display: "flex",
-          flexDirection: "column",
           justifyContent: "space-between",
         }}
       >
         <div
           style={{
-            color: "white",
+            width: "80%",
             display: "flex",
-            gap: "20px",
+            flexDirection: "column",
+            justifyContent: "space-between",
           }}
         >
           <div
             style={{
-              background: "#f30",
-              fontSize: "30px",
               color: "white",
-              display: "inline-block",
-              borderRadius: "50%",
-              cursor: "pointer",
-              alignSelf: "center",
-              padding: "5px",
+              display: "flex",
+              gap: "20px",
             }}
-            onClick={onPlayPause}
           >
-            {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-          </div>
-
-          <div>
-            <h4
+            <div
               style={{
-                background: "rgba(0, 0, 0, 0.8)",
-                padding: "5px",
-                marginBottom: 2,
-              }}
-            >
-              Đắng lòng chữ thương
-            </h4>
-            <p
-              style={{
-                background: "rgba(0, 0, 0, 0.8)",
+                background: "#f30",
+                fontSize: "30px",
+                color: "white",
                 display: "inline-block",
+                borderRadius: "50%",
+                cursor: "pointer",
+                alignSelf: "center",
                 padding: "5px",
-                marginTop: 0,
               }}
+              onClick={onPlayPause}
             >
-              Thành Đạt
-            </p>
+              {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+            </div>
+
+            <div>
+              <h4
+                style={{
+                  background: "rgba(0, 0, 0, 0.8)",
+                  padding: "5px",
+                  marginBottom: 2,
+                }}
+              >
+                {track?.title}
+              </h4>
+              <p
+                style={{
+                  background: "rgba(0, 0, 0, 0.8)",
+                  display: "inline-block",
+                  padding: "5px",
+                  marginTop: 0,
+                }}
+              >
+                {track?.description}
+              </p>
+            </div>
+          </div>
+
+          <div ref={containerRef} className="wave-form-container">
+            <div id="time">{formatTime(currentTime)}</div>
+            <div id="hover" ref={hoverRef}></div>
           </div>
         </div>
 
-        <div ref={containerRef} className="wave-form-container">
-          <div id="time">{formatTime(currentTime)}</div>
-          <div id="hover" ref={hoverRef}></div>
-        </div>
+        <div
+          style={{
+            background:
+              "linear-gradient(135deg, rgb(132, 97, 112), rgb(112, 146, 156))",
+            width: "250px",
+            height: "100%",
+          }}
+        ></div>
       </div>
 
-      <div
-        style={{
-          background:
-            "linear-gradient(135deg, rgb(132, 97, 112), rgb(112, 146, 156))",
-          width: "250px",
-          height: "100%",
-        }}
-      ></div>
+      <Stack direction={"row"} justifyContent={"space-between"}>
+        <Chip icon={<FavoriteIcon />} label="Love" clickable />
+        <Stack direction={"row"}>
+          <Chip
+            icon={<RemoveRedEyeIcon />}
+            label={`${track?.countPlay}`}
+            clickable
+          />
+          <Chip
+            icon={<FavoriteIcon />}
+            label={`${track?.countLike}`}
+            clickable
+          />
+        </Stack>
+      </Stack>
     </div>
   );
 };

@@ -8,8 +8,11 @@ export default async function HomePage() {
   const session = await getServerSession(authOptions);
 
   const ballads = await sendRequest<IBackendRes<ITrackTop[]>>({
-    url: "http://localhost:5000/api/v1/tracks?category=Ballad",
+    url: "http://localhost:5000/api/v1/tracks",
     method: "GET",
+    queryParams: {
+      category: "Ballad",
+    },
   });
 
   return (

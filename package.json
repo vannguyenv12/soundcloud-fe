@@ -21,6 +21,7 @@
     "axios": "1.7.2",
     "next": "13.4.19",
     "next-auth": "^4.24.7",
+    "next-nprogress-bar": "^2.3.12",
     "query-string": "^9.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -29,6 +30,7 @@
     "react-slick": "^0.30.2",
     "sass": "^1.77.2",
     "slick-carousel": "^1.8.1",
+    "slugify": "^1.6.6",
     "wavesurfer.js": "7.3.1"
   },
   "devDependencies": {

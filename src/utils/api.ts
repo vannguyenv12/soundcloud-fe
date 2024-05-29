@@ -1,4 +1,5 @@
 import queryString from "query-string";
+import slugify from "slugify";
 
 export const sendRequest = async <T>(props: IRequest) => {
   let {
@@ -78,4 +79,19 @@ export const sendRequestFile = async <T>(props: IRequest) => {
       });
     }
   });
+};
+
+export const convertSlugUrl = (str: string) => {
+  return slugify(str, {
+    lower: true,
+    locale: "vi",
+  });
+};
+
+export const generateId = (str: string) => {
+  const temp = str?.split(".html");
+
+  const id = temp[0]?.split("-");
+
+  return id[id.length - 1];
 };

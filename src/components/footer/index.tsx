@@ -1,5 +1,6 @@
 "use client";
 
+import { useTrackContext } from "@/lib/track.wrapper";
 import { useHasMounted } from "@/utils/customHook";
 import AddIcon from "@mui/icons-material/Add";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -27,9 +28,28 @@ const StyledFab = styled(Fab)({
 });
 
 export default function Footer() {
+  const playerRef = React.useRef(null);
+
   const hasMounted = useHasMounted();
 
+  const { currentTrack, setCurrentTrack } = useTrackContext() as ITrackContext;
   if (!hasMounted) return <></>;
+
+  console.log("check track", currentTrack);
+
+  (async () => {
+    try {
+      if (currentTrack.isPlaying) {
+        //@ts-ignore
+        await playerRef?.current?.audio?.current?.play();
+      } else {
+        //@ts-ignore
+        await playerRef?.current?.audio?.current?.pause();
+      }
+    } catch (error: any) {
+      console.log("failed to play ", error);
+    }
+  })();
 
   return (
     <div style={{ marginTop: "150px" }}>
@@ -44,13 +64,20 @@ export default function Footer() {
           }}
         >
           <AudioPlayer
+            ref={playerRef}
             layout="horizontal-reverse"
             autoPlay
-            src="https://a128-z3.zmdcdn.me/7252053b66d9ca459205d8c2ac5a1b1e?authen=exp=1716227087~acl=/7252053b66d9ca459205d8c2ac5a1b1e/*~hmac=3c02b1bce75e89c291015a8471e32c8b"
-            onPlay={(e) => console.log("onPlay")}
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}uploads/${currentTrack.trackUrl}`}
+            onPlay={(e) =>
+              setCurrentTrack({ ...currentTrack, isPlaying: true })
+            }
+            onPause={(e) =>
+              setCurrentTrack({ ...currentTrack, isPlaying: false })
+            }
             style={{
               boxShadow: "unset",
             }}
+            onError={(event) => console.log(event?.target)}
           />
 
           <div
@@ -59,8 +86,8 @@ export default function Footer() {
               minWidth: 100,
             }}
           >
-            <h4>Thành Đạt</h4>
-            <p style={{ whiteSpace: "nowrap" }}>Đắng lòng chữ thương</p>
+            <h4>{currentTrack.description}</h4>
+            <p style={{ whiteSpace: "nowrap" }}>{currentTrack.title}</p>
           </div>
         </Container>
       </AppBar>
